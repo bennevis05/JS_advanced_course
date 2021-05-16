@@ -1,0 +1,42 @@
+header {
+    background-color: rgb(233, 233, 233);
+    padding: 0 150px;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.navbar-item {
+    float: left;
+}
+  
+.navbar-item-link {
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.cart-button {
+    float: right;
+}
+
+main {
+    padding: 20px 150px;
+}
+
+.goods-item {
+    margin: 5px;
+    border: 1px solid #ccc;
+    float: left;
+    width: 180px;
+    text-align: center;
+}
+
+.goods-item:hover {
+    border: 1px solid #777;
+}
