@@ -11,14 +11,18 @@
 <body>
     <header>
         <ul class="navbar">
-            <li class="navbar-item"><a class="navbar-item-link" href="#">Главная</a></li>
+            <li class="navbar-item"><a class="navbar-item-link main-page" href="#">Главная</a></li>
             <li class="navbar-item"><a class="navbar-item-link" href="#">Каталог</a></li>
             <li class="navbar-item"><a class="navbar-item-link" href="#">Контакты</a></li>
-            <li class="navbar-item cart-button navbar-item-link"><button type="button">Корзина</button></li>
+            <li class="navbar-item cart navbar-item-link">
+                <span class="cart-count">Всего товаров: 0</span>
+                <button class="cart-button" type="button">Корзина</button>
+            </li>
         </ul>
     </header>
     <main>
         <div class="goods-list"></div>
+        <div class="basket"></div>
     </main>
 </body>
 </html>

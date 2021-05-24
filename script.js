@@ -1,39 +1,90 @@
+const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+
+
+function makeGETRequest(url, callback) {
+    return new Promise((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                callback(xhr.responseText);
+            }
+        };
+        xhr.open('GET', url, true);
+        xhr.send();
+    });
+}
+  
+
 class GoodsItem {
-    constructor(title = 'Товар еще не добавлен', price = 0) {
-        this.title = title;
+    constructor(id_product, product_name = 'Товар еще не добавлен', price = 0) {
+        this.id_product = id_product,
+        this.product_name = product_name;
         this.price = price;
     }
 
+    getGoodItem() {
+        let good = {
+            'id_product': this.id_product,
+            'product_name': this.product_name,
+            'price': this.price
+        }
+        return good;
+    }
+
     render() {
-        return `<div class="goods-item"><h3>${this.title}</h3><p>Price: ${this.price}$</p></div>`;
+        return `<div class="goods-item">
+                    <h3 id="product-name-${this.id_product}">${this.product_name}</h3>
+                    <p id="product-price-${this.id_product}">Price: ${this.price} руб.</p>
+                    <button class="add-basket-btn" 
+                        data-product='${JSON.stringify(this.getGoodItem())}' 
+                        id="add-product-${this.id_product}">
+                        Добавить в корзину
+                    </button>
+                </div>`;
     }
 }
 
+
 class GoodsList {
+    basket = new Basket();
+
     constructor() {
         this.goods = [];
     }
 
-    fetchGoods() {
-        this.goods = [
-            { title: 'Shirt', price: 150 },
-            { title: 'Socks', price: 50 },
-            { title: 'Jacket', price: 350 },
-            { title: 'Shoes', price: 250 },
-            { title: 'Dress', price: 200 },
-            { title: 'Blazer ', price: 180 },
-            { title: 'Vest ', price: 75 },
-            { title: 'Sweater ', price: 250 },
-        ];
+    fetchGoods(callbackFunc) {
+        makeGETRequest(`${API_URL}/catalogData.json`, (goods) => {
+            this.goods = JSON.parse(goods);
+            callbackFunc();
+        });
+    }
+
+    addToBasket(event) {
+        let elem = event.target;
+        let product = JSON.parse(elem.dataset.product);
+        this.basket.addProduct(product);
+    }
+
+    setListeners() {
+        this.goods.forEach(elem => {
+            document.getElementById(`add-product-${elem.id_product}`).addEventListener(
+                'click', (event) => this.addToBasket(event));
+        });
+        document.querySelector('.main-page').addEventListener('click',
+            (event) => this.render(event));
     }
 
     render() {
         let htmlResult = '';
         this.goods.forEach(good => {
-            const goodItem = new GoodsItem(good.title, good.price);
+            const goodItem = new GoodsItem(good.id_product, good.product_name, good.price);
             htmlResult += goodItem.render();
         });
+        document.querySelector('.basket').style.display = "none";
         document.querySelector('.goods-list').innerHTML = htmlResult;
+        document.querySelector('.goods-list').style.display = "block";
+        this.setListeners();
     }
 
     totalСost() {
@@ -46,26 +97,70 @@ class GoodsList {
     }
 }
 
-class Basket extends GoodsList {
-    constructor(...args) {
-        super(...args);
+
+class Basket {
+    constructor() {
+        this.items = [];
     }
   
-    addProduct() {}
+    addProduct(product) {
+        this.items.push(product);
+        document.querySelector('.cart-count').innerHTML = `Всего товаров: ${this.items.length}`;
+        document.querySelector('.cart-button').addEventListener('click',
+            (event) => this.render(event));
+    }
 
-    deleteProduct() {}
+    deleteProduct(event) {
+        let producId = event.target.dataset.productId;
+        this.items = this.items.filter((item) => String(item.id_product) !== String(producId));
+        document.querySelector('.cart-count').innerHTML = `Всего товаров: ${this.items.length}`;
+        this.render();
+    }
 
-    filteringByPrice() {}
+    setListeners() {
+        this.items.forEach(elem => {
+            document.getElementById(`delete-product-${elem.id_product}`).addEventListener(
+                'click', (event) => this.deleteProduct(event));
+        });
+    }
+
+    render() {
+        let htmlResult = '';
+        this.items.forEach(item => {
+            const basketItem = new BasketItem(item.id_product, item.product_name, item.price);
+            htmlResult += basketItem.render();
+        });
+        document.querySelector('.goods-list').style.display = "none";
+        document.querySelector('.basket').innerHTML = htmlResult;
+        document.querySelector('.basket').style.display = "block";
+        this.setListeners();
+    }
+
 }
-  
+
+
 class BasketItem extends GoodsItem {
     constructor(...args) {
         super(...args);
         this.totalQantity = 0;
     }
+
+    render() {
+        return `<div class="goods-item">
+                    <h3 id="product-name-${this.id_product}">${this.product_name}</h3>
+                    <p id="product-price-${this.id_product}">Price: ${this.price} руб.</p>
+                    <button class="add-basket-btn" 
+                        data-product-id='${this.id_product}' 
+                        id="delete-product-${this.id_product}">
+                        Удалить товар
+                    </button>
+                </div>`;
+    }
 }
 
+
 const productsList = new GoodsList();
-productsList.fetchGoods();
-productsList.render();
+productsList.fetchGoods(() => {
+    productsList.render();
+});
 productsList.totalСost();

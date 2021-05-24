@@ -21,7 +21,7 @@ header {
     text-decoration: none;
 }
 
-.cart-button {
+.cart {
     float: right;
 }
 
@@ -39,4 +39,8 @@ main {
 
 .goods-item:hover {
     border: 1px solid #777;
+}
+
+.add-basket-btn {
+    margin-bottom: 10px;
 }
