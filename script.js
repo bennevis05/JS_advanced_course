@@ -51,11 +51,13 @@ class GoodsList {
 
     constructor() {
         this.goods = [];
+        this.filteredGoods = [];
     }
 
     fetchGoods(callbackFunc) {
         makeGETRequest(`${API_URL}/catalogData.json`, (goods) => {
             this.goods = JSON.parse(goods);
+            this.filteredGoods = JSON.parse(goods);
             callbackFunc();
         });
     }
@@ -67,7 +69,7 @@ class GoodsList {
     }
 
     setListeners() {
-        this.goods.forEach(elem => {
+        this.filteredGoods.forEach(elem => {
             document.getElementById(`add-product-${elem.id_product}`).addEventListener(
                 'click', (event) => this.addToBasket(event));
         });
@@ -77,7 +79,7 @@ class GoodsList {
 
     render() {
         let htmlResult = '';
-        this.goods.forEach(good => {
+        this.filteredGoods.forEach(good => {
             const goodItem = new GoodsItem(good.id_product, good.product_name, good.price);
             htmlResult += goodItem.render();
         });
@@ -94,6 +96,12 @@ class GoodsList {
         }
         console.log(sum);
         return sum;
+    }
+
+    filterGoods(value) {
+        const regexp = new RegExp(value, 'i');
+        this.filteredGoods = this.goods.filter(good => regexp.test(good.product_name));
+        this.render();
     }
 }
 
@@ -163,4 +171,10 @@ const productsList = new GoodsList();
 productsList.fetchGoods(() => {
     productsList.render();
 });
-productsList.totalСost();
+
+const searchButton = document.querySelector('.search-button')
+const searchInput = document.querySelector('.goods-search')
+searchButton.addEventListener('click', (e) => {
+  const value = searchInput.value;
+  productsList.filterGoods(value);
+});
