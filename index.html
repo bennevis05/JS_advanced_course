@@ -6,27 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eShop</title>
     <link rel="stylesheet" href="style.css">
-    <script defer src="script.js"></script>
 </head>
 <body>
-    <header>
-        <div class="search-block">
-            <input type="text" class="goods-search" />
-            <button class="search-button" type="button">Искать</button>
-        </div>
-        <ul class="navbar">
-            <li class="navbar-item"><a class="navbar-item-link main-page" href="#">Главная</a></li>
-            <li class="navbar-item"><a class="navbar-item-link" href="#">Каталог</a></li>
-            <li class="navbar-item"><a class="navbar-item-link" href="#">Контакты</a></li>
-            <li class="navbar-item cart navbar-item-link">
-                <span class="cart-count">Всего товаров: 0</span>
-                <button class="cart-button" type="button">Корзина</button>
-            </li>
-        </ul>
-    </header>
-    <main>
-        <div class="goods-list"></div>
-        <div class="basket"></div>
-    </main>
+    <div id="app">
+        <header>
+            <div class="search-block">
+                <input type="text" class="goods-search" v-model="searchLine" />
+                <button class="search-button" type="button" @click="filterGoods(searchLine)">Искать</button>
+            </div>
+            <ul class="navbar">
+                <li class="navbar-item" @click="showCatalog"><a class="navbar-item-link main-page" href="#">Главная</a></li>
+                <li class="navbar-item"><a class="navbar-item-link" href="#">Каталог</a></li>
+                <li class="navbar-item"><a class="navbar-item-link" href="#">Контакты</a></li>
+                <li class="navbar-item cart navbar-item-link">
+                    <span class="cart-count">Всего товаров: {{ basketItems.length }}</span>
+                    <button class="cart-button" type="button" @click="showBasket">
+                        Корзина
+                    </button>
+                </li>
+            </ul>
+        </header>
+        <main>
+            <div class="goods-list" v-if="filteredGoods.length === 0">
+                <h3>Нет данных</h3>
+            </div>
+            <div class="goods-list" v-else-if="isVisibleCatalog">
+                <div class="goods-item" v-for="good in filteredGoods">
+                    <h3>{{ good.product_name }}</h3>
+                    <p>{{ good.price }} руб.</p>
+                    <button class="add-basket-btn" @click="addToBasket(good)">
+                        Добавить в корзину
+                    </button>
+                </div>
+            </div>
+
+            <div class="basket" v-if="isVisibleCart">
+                <div class="goods-item" v-for="item in basketItems">
+                    <h3>{{ item.product_name }}</h3>
+                    <p>{{ item.price }} руб.</p>
+                    <button class="add-basket-btn" @click="removeFromBasket(item)">
+                        Удалить из корзины
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
